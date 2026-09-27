@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .migrations import migrate
 from . import mailer
-from .routers import auth, tasks, stats, categories, notifications, transfer
+from .routers import auth, tasks, stats, categories, notifications, transfer, enhancements
 
 _migration_lock = threading.Lock()
 _migration_state = {"done": False, "error": None}
@@ -46,7 +46,7 @@ async def lifespan(app):
 app = FastAPI(
     title="Lịch Làm Việc API",
     description="Quản lý lịch cá nhân, nhắc việc và thống kê",
-    version="2.0.0",
+    version="3.0.0",
     lifespan=lifespan,
 )
 origins = [s.strip() for s in os.getenv("CORS_ORIGINS", "").split(",") if s.strip()]
@@ -83,6 +83,7 @@ for router in [
     categories.router,
     notifications.router,
     transfer.router,
+    enhancements.router,
 ]:
     app.include_router(router)
 
@@ -91,7 +92,7 @@ for router in [
 def health():
     return {
         "status": "ok" if _migration_state["done"] else "degraded",
-        "version": "2.0.0",
+        "version": "3.0.0",
         "database_ready": _migration_state["done"],
         "database_error": _migration_state["error"],
     }

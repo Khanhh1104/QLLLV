@@ -24,7 +24,12 @@ ADDITIONS = {
         "reminder_minutes": "INTEGER",
         "checklist": "JSON NOT NULL DEFAULT '[]'",
         "external_uid": "VARCHAR(255)",
+        "location": "VARCHAR(300)",
+        "meeting_url": "VARCHAR(2048)",
+        "actual_minutes": "INTEGER NOT NULL DEFAULT 0",
+        "timer_started_at": "TIMESTAMP",
     },
+    "notifications": {"snoozed_until": "TIMESTAMP"},
 }
 
 

@@ -30,6 +30,12 @@ def test_upgrade_v1_preserves_data(tmp_path, monkeypatch):
     monkeypatch.setattr(migrations, "SessionLocal", sessionmaker(bind=engine))
     migrations.migrate()
     migrations.migrate()
+    inspector = inspect(engine)
+    task_columns = {column["name"] for column in inspector.get_columns("tasks")}
+    assert {"location", "meeting_url", "actual_minutes", "timer_started_at"} <= task_columns
+    assert {"task_templates", "saved_filters", "activity_logs"} <= set(
+        inspector.get_table_names()
+    )
     with sessionmaker(bind=engine)() as db:
         user = db.get(models.User, 1)
         task = db.get(models.Task, 1)

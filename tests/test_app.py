@@ -329,6 +329,8 @@ def test_ics_csv_roundtrip_and_atomic_import(logged):
         title="Báo cáo, học tập",
         description="Dòng một\nDòng hai",
         category="Học tập",
+        location="Phòng A1",
+        meeting_url="https://meet.example.com/roundtrip",
     )
     ics = logged.get("/transfer/export?format=ics")
     assert ics.status_code == 200 and b"VCALENDAR" in ics.content
@@ -350,6 +352,12 @@ def test_ics_csv_roundtrip_and_atomic_import(logged):
     )
     assert result.status_code == 200 and result.json()["imported"] == 1
     assert logged.get("/tasks").json()["total"] == 2
+    copies = logged.get("/tasks?keyword=Báo%20cáo").json()["items"]
+    assert all(item["location"] == "Phòng A1" for item in copies)
+    assert all(
+        item["meeting_url"] == "https://meet.example.com/roundtrip"
+        for item in copies
+    )
     bad = b"title,start_time,end_time\nGood,2027-01-01T09:00:00Z,2027-01-01T10:00:00Z\nBad,invalid,\n"
     assert (
         logged.post("/transfer/import", files={"file": ("bad.csv", bad)}).status_code

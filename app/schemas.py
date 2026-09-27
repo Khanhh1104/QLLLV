@@ -101,6 +101,8 @@ class TaskBase(BaseModel):
     timezone: str = "Asia/Ho_Chi_Minh"
     reminder_minutes: Optional[int] = Field(None, ge=0, le=10080)
     checklist: list[ChecklistItem] = Field(default_factory=list, max_length=100)
+    location: Optional[str] = Field(None, max_length=300)
+    meeting_url: Optional[str] = Field(None, max_length=2048)
 
     @field_validator("title")
     @classmethod
@@ -113,6 +115,21 @@ class TaskBase(BaseModel):
     @classmethod
     def trim_category(cls, v):
         return (v.strip() or None) if v else None
+
+    @field_validator("location")
+    @classmethod
+    def trim_location(cls, v):
+        return (v.strip() or None) if v else None
+
+    @field_validator("meeting_url")
+    @classmethod
+    def valid_meeting_url(cls, v):
+        if not v:
+            return None
+        value = v.strip()
+        if not value.startswith(("https://", "http://")):
+            raise ValueError("Liên kết phải bắt đầu bằng http:// hoặc https://")
+        return value
 
     @field_validator("timezone")
     @classmethod
@@ -151,6 +168,8 @@ class TaskUpdate(BaseModel):
     timezone: Optional[str] = None
     reminder_minutes: Optional[int] = None
     checklist: Optional[list[ChecklistItem]] = None
+    location: Optional[str] = None
+    meeting_url: Optional[str] = None
     scope: Literal["one", "series"] = "one"
     allow_overlap: bool = False
 
@@ -166,6 +185,8 @@ class TaskOut(TaskBase):
     series_id: Optional[str] = None
     recurrence: str
     recurrence_until: Optional[str] = None
+    actual_minutes: int = 0
+    timer_started_at: Optional[datetime] = None
 
     @field_validator(
         "start_time",
@@ -175,6 +196,7 @@ class TaskOut(TaskBase):
         "updated_at",
         "completed_at",
         "deleted_at",
+        "timer_started_at",
         mode="after",
     )
     @classmethod
@@ -213,8 +235,97 @@ class NotificationOut(BaseModel):
     title: str
     created_at: datetime
     read_at: Optional[datetime]
+    snoozed_until: Optional[datetime] = None
 
-    @field_validator("created_at", "read_at")
+    @field_validator("created_at", "read_at", "snoozed_until")
     @classmethod
     def utc(cls, v):
         return aware_utc(v)
+
+
+class TemplateIn(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    title: str = Field(min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=10000)
+    category: Optional[str] = Field(None, max_length=50)
+    priority: TaskPriority = TaskPriority.medium
+    duration_minutes: int = Field(default=60, ge=15, le=10080)
+    reminder_minutes: Optional[int] = Field(None, ge=0, le=10080)
+    checklist: list[ChecklistItem] = Field(default_factory=list, max_length=100)
+    location: Optional[str] = Field(None, max_length=300)
+    meeting_url: Optional[str] = Field(None, max_length=2048)
+
+    @field_validator("name", "title")
+    @classmethod
+    def required_text(cls, v):
+        if not v.strip():
+            raise ValueError("Nội dung không được để trống")
+        return v.strip()
+
+    @field_validator("meeting_url")
+    @classmethod
+    def template_url(cls, v):
+        return TaskBase.valid_meeting_url(v)
+
+
+class TemplateOut(TemplateIn):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    created_at: datetime
+
+    @field_validator("created_at")
+    @classmethod
+    def template_created_utc(cls, v):
+        return aware_utc(v)
+
+
+class SavedFilterIn(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    query: dict = Field(default_factory=dict)
+
+    @field_validator("name")
+    @classmethod
+    def filter_name(cls, v):
+        if not v.strip():
+            raise ValueError("Tên bộ lọc không được để trống")
+        return v.strip()
+
+
+class SavedFilterOut(SavedFilterIn):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    created_at: datetime
+
+    @field_validator("created_at")
+    @classmethod
+    def filter_created_utc(cls, v):
+        return aware_utc(v)
+
+
+class ActivityOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    task_id: Optional[int]
+    action: str
+    task_title: str
+    details: dict
+    created_at: datetime
+
+    @field_validator("created_at")
+    @classmethod
+    def activity_created_utc(cls, v):
+        return aware_utc(v)
+
+
+class DuplicateTaskIn(BaseModel):
+    offset_days: int = Field(default=1, ge=-365, le=365)
+    allow_overlap: bool = False
+
+
+class RescheduleTaskIn(BaseModel):
+    target_date: date
+    allow_overlap: bool = False
+
+
+class SnoozeIn(BaseModel):
+    minutes: int = Field(ge=5, le=1440)

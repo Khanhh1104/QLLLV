@@ -64,6 +64,10 @@ class Task(Base):
     timezone = Column(String(80), default="Asia/Ho_Chi_Minh", nullable=False)
     reminder_minutes = Column(Integer)
     checklist = Column(JSON, default=list, nullable=False)
+    location = Column(String(300))
+    meeting_url = Column(String(2048))
+    actual_minutes = Column(Integer, nullable=False, default=0)
+    timer_started_at = Column(DateTime)
     external_uid = Column(String(255))
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     owner = relationship("User", back_populates="tasks")
@@ -93,6 +97,46 @@ class Notification(Base):
     email_sent_at = Column(DateTime)
     email_claimed_at = Column(DateTime)
     email_attempts = Column(Integer, default=0, nullable=False)
+    snoozed_until = Column(DateTime)
+
+
+class TaskTemplate(Base):
+    __tablename__ = "task_templates"
+    id = Column(Integer, primary_key=True)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    name = Column(String(80), nullable=False)
+    title = Column(String(200), nullable=False)
+    description = Column(Text)
+    category = Column(String(50))
+    priority = Column(Enum(TaskPriority), default=TaskPriority.medium, nullable=False)
+    duration_minutes = Column(Integer, nullable=False, default=60)
+    reminder_minutes = Column(Integer)
+    checklist = Column(JSON, default=list, nullable=False)
+    location = Column(String(300))
+    meeting_url = Column(String(2048))
+    created_at = Column(DateTime, default=utcnow)
+    __table_args__ = (UniqueConstraint("owner_id", "name"),)
+
+
+class SavedFilter(Base):
+    __tablename__ = "saved_filters"
+    id = Column(Integer, primary_key=True)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    name = Column(String(80), nullable=False)
+    query = Column(JSON, nullable=False, default=dict)
+    created_at = Column(DateTime, default=utcnow)
+    __table_args__ = (UniqueConstraint("owner_id", "name"),)
+
+
+class ActivityLog(Base):
+    __tablename__ = "activity_logs"
+    id = Column(Integer, primary_key=True)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    task_id = Column(Integer, ForeignKey("tasks.id", ondelete="SET NULL"), nullable=True)
+    action = Column(String(40), nullable=False)
+    task_title = Column(String(200), nullable=False)
+    details = Column(JSON, nullable=False, default=dict)
+    created_at = Column(DateTime, default=utcnow, nullable=False, index=True)
 
 
 class PasswordReset(Base):

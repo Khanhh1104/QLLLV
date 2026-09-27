@@ -16,6 +16,7 @@ from ..services import (
     clear_reminders,
 )
 from ..timeutils import naive_utc, aware_utc, utcnow
+from ..activity import record_activity
 
 router = APIRouter(prefix="/tasks", tags=["Công việc"])
 
@@ -120,6 +121,14 @@ def create_task(
     tasks = recurring_tasks(data, user.id)
     check_conflicts(db, user.id, tasks, data.allow_overlap)
     db.add_all(tasks)
+    db.flush()
+    record_activity(
+        db,
+        user.id,
+        "created",
+        tasks[0],
+        details={"recurrence_count": len(tasks)},
+    )
     db.commit()
     db.refresh(tasks[0])
     return tasks[0]
@@ -213,6 +222,13 @@ def update_task(
             target.completed_at = None
         if schedule_changed or target.status == models.TaskStatus.done:
             clear_reminders(db, [target.id])
+    record_activity(
+        db,
+        user.id,
+        "updated",
+        task,
+        details={"fields": sorted(updates), "scope": data.scope},
+    )
     db.commit()
     db.refresh(task)
     return task
@@ -237,6 +253,13 @@ def delete_task(
     for target in targets:
         target.deleted_at = utcnow()
     clear_reminders(db, [t.id for t in targets])
+    record_activity(
+        db,
+        user.id,
+        "deleted",
+        task,
+        details={"scope": scope, "count": len(targets)},
+    )
     db.commit()
 
 
@@ -250,6 +273,7 @@ def restore(
     task = owned(db, task_id, user.id, deleted=True)
     check_conflicts(db, user.id, [task], allow_overlap)
     task.deleted_at = None
+    record_activity(db, user.id, "restored", task)
     db.commit()
     db.refresh(task)
     return task
@@ -263,5 +287,8 @@ def permanent(
 ):
     task = owned(db, task_id, user.id, deleted=True)
     clear_reminders(db, [task.id])
+    record_activity(
+        db, user.id, "purged", task_title=task.title, details={"former_id": task.id}
+    )
     db.delete(task)
     db.commit()

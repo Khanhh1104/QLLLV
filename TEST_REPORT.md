@@ -1,4 +1,4 @@
-# Kết quả kiểm thử bản 2.0
+# Kết quả kiểm thử bản 3.0
 
 ## Môi trường
 
@@ -7,7 +7,7 @@
 - Giao diện desktop 1440 × 1100 và mobile 390 × 844; múi giờ Asia/Ho_Chi_Minh.
 - Dữ liệu kiểm thử riêng; SMTP được giả lập, không gửi email thật.
 
-## Backend: 24 bài kiểm thử đạt
+## Backend: 30 bài kiểm thử đạt
 
 Lệnh: `python -m pytest -q --disable-warnings`.
 
@@ -25,19 +25,29 @@ Lệnh: `python -m pytest -q --disable-warnings`.
 - Hồ sơ, đổi mật khẩu vô hiệu hóa token, khôi phục mật khẩu một lần.
 - CSV/ICS xuất-nhập, bỏ qua UID trùng, lịch lặp ICS hữu hạn, tệp lỗi không ghi một phần dữ liệu.
 - Nâng cấp schema từ cơ sở dữ liệu v1, giữ tài khoản/công việc/giờ gốc; chạy migration lại không tạo dữ liệu trùng.
+- Địa điểm/liên kết họp và chặn giao thức URL không an toàn.
+- CRUD mẫu công việc, tên trùng, phân tách mẫu giữa hai tài khoản.
+- Lưu bộ lọc, chỉ giữ các trường được phép và xóa bộ lọc.
+- Nhân bản, dời ngày, phiên tính giờ, chỉ một bộ đếm đang chạy và ghi nhật ký hoạt động.
+- Hoãn thông báo, loại thông báo đang hoãn khỏi số chưa đọc.
+- Báo cáo PDF có đúng kiểu nội dung, tên tải xuống, giới hạn khoảng ngày và dữ liệu tiếng Việt.
 
 Các cảnh báo DeprecationWarning còn xuất phát từ thư viện phụ thuộc; không phải bài kiểm thử thất bại.
 
 ## Trình duyệt: luồng thao tác đạt
 
 - Đăng ký, đăng nhập, tạo công việc có mô tả/danh mục/mốc nhắc/checklist.
-- Truy cập cả 9 màn hình; lịch tháng, tuần, ngày hiển thị sự kiện.
+- Truy cập cả 10 màn hình; lịch tháng, tuần, ngày hiển thị sự kiện.
+- Lưu/áp dụng mẫu công việc và bộ lọc; bắt đầu/dừng phiên tập trung.
+- Kéo thả sự kiện sang giờ khác và kéo mép dưới để đổi thời lượng.
+- Mở nhật ký hoạt động và tải báo cáo PDF qua API của phiên đăng nhập.
 - Lọc công việc, chỉnh checklist, xóa và khôi phục qua giao diện.
 - Tạo danh mục, tạo chuỗi 3 lần, sửa nội dung cả chuỗi.
 - Cập nhật tên hiển thị; đăng xuất từ trang Tài khoản trên mobile.
 - Không ghi nhận lỗi JavaScript chưa được xử lý trong luồng kiểm thử.
 - Trang Hôm nay tại 390 px không bị tràn ngang.
 - Đã xem trực quan ảnh desktop, lịch tuần và mobile; ảnh mẫu ở `docs/screenshots/`.
+- Đã render báo cáo PDF thành ảnh và kiểm tra trực quan: tiếng Việt, bảng tóm tắt, bảng công việc và số trang hiển thị đúng.
 
 Mã kiểm thử được kèm tại `tests/browser_smoke.cjs`. Chạy trên database thử riêng vì bài kiểm thử sẽ tạo tài khoản và công việc mẫu.
 

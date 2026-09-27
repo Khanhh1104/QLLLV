@@ -13,3 +13,4 @@ python-dotenv==1.0.1
 python-dateutil==2.9.0.post0
 icalendar==7.3.0
 tzdata==2026.4
+reportlab==4.4.4

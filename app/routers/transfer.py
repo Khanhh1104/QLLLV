@@ -52,6 +52,8 @@ def export(
                 "deadline",
                 "status",
                 "priority",
+                "location",
+                "meeting_url",
             ]
         )
         for task in tasks:
@@ -65,6 +67,8 @@ def export(
                     aware_utc(task.deadline).isoformat() if task.deadline else "",
                     task.status.value,
                     task.priority.value,
+                    safe_csv(task.location),
+                    safe_csv(task.meeting_url),
                 ]
             )
         content = ("\ufeff" + output.getvalue()).encode("utf-8")
@@ -85,6 +89,10 @@ def export(
                 event.add("description", task.description)
             if task.category:
                 event.add("categories", [task.category])
+            if task.location:
+                event.add("location", task.location)
+            if task.meeting_url:
+                event.add("url", task.meeting_url)
             event.add("x-task-status", task.status.value)
             event.add("x-task-priority", task.priority.value)
             if task.deadline:
@@ -187,6 +195,8 @@ def read_ics(raw, user):
                     "timezone": user.timezone,
                     "status": str(event.get("x-task-status", "todo")),
                     "priority": str(event.get("x-task-priority", "medium")),
+                    "location": str(event.get("location", "")) or None,
+                    "meeting_url": str(event.get("url", "")) or None,
                     "external_uid": (
                         (uid + ":" + normalized.isoformat()) if uid else None
                     ),
@@ -220,6 +230,8 @@ def read_csv(raw, user):
                 "start_time",
                 "end_time",
                 "deadline",
+                "location",
+                "meeting_url",
             ]
         }
         item.update(
@@ -227,7 +239,7 @@ def read_csv(raw, user):
             priority=row.get("priority") or "medium",
             timezone=user.timezone,
         )
-        for key in ["title", "description", "category"]:
+        for key in ["title", "description", "category", "location", "meeting_url"]:
             if (
                 item[key]
                 and item[key].startswith("'")

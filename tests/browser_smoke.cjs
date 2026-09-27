@@ -10,11 +10,15 @@ fs.mkdirSync(artifacts, { recursive: true });
     ...(process.env.CHROMIUM_EXECUTABLE_PATH
       ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH }
       : {}),
+    ignoreDefaultArgs: ["--enable-unsafe-swiftshader"],
     args: [
       "--no-sandbox",
       "--disable-dev-shm-usage",
       "--single-process",
       "--no-zygote",
+      "--use-gl=disabled",
+      "--disable-gpu",
+      "--disable-software-rasterizer",
     ],
   });
   const page = await browser.newPage({
@@ -23,6 +27,14 @@ fs.mkdirSync(artifacts, { recursive: true });
   });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  page.on("dialog", (dialog) => {
+    const answer = dialog.message().includes("Tên mẫu")
+      ? "Mẫu báo cáo"
+      : dialog.message().includes("Tên bộ lọc")
+        ? "Báo cáo quan trọng"
+        : undefined;
+    dialog.accept(answer);
+  });
   await page.goto(BASE);
   await page.screenshot({
     path: path.join(artifacts, "login.png"),
@@ -47,6 +59,10 @@ fs.mkdirSync(artifacts, { recursive: true });
   await page
     .locator("#taskDescription")
     .fill("Rà soát nội dung và chuẩn bị tài liệu trình bày.");
+  await page.locator("#taskLocation").fill("Phòng họp A1");
+  await page
+    .locator("#taskMeetingUrl")
+    .fill("https://meet.example.com/bao-cao");
   await page.locator("#taskCategory").selectOption("Công việc");
   await page.locator("#taskPriority").selectOption("high");
   const today = await page.evaluate(() =>
@@ -59,11 +75,24 @@ fs.mkdirSync(artifacts, { recursive: true });
   await page.locator("#taskReminder").selectOption("15");
   await page.locator("#addChecklist").click();
   await page.locator("#checklistEditor [type=text]").fill("Kiểm tra nội dung");
+  await page.locator("#saveTemplate").click();
+  await page
+    .locator("#taskTemplate option", { hasText: "Mẫu báo cáo" })
+    .waitFor({ state: "attached" });
   await page
     .getByRole("button", { name: "Lưu công việc", exact: true })
     .click();
   await page.locator("#taskModal").waitFor({ state: "hidden" });
   await page.locator("#todayTasks .task-title").first().waitFor();
+  await page.locator("#newTaskBtn").click();
+  await page.locator("#taskTemplate").selectOption({ label: "Mẫu báo cáo" });
+  await page.locator("#loadTemplate").click();
+  if (
+    (await page.locator("#taskTitle").inputValue()) !==
+    "Hoàn thiện báo cáo dự án"
+  )
+    throw new Error("Task template UI failed");
+  await page.locator("#cancelTask").click();
   const token = await page.evaluate(() => localStorage.getItem("sm_token"));
   for (const t of [
     {
@@ -106,6 +135,7 @@ fs.mkdirSync(artifacts, { recursive: true });
     "calendar",
     "tasks",
     "stats",
+    "activities",
     "notifications",
     "categories",
     "transfer",
@@ -129,6 +159,21 @@ fs.mkdirSync(artifacts, { recursive: true });
     path: path.join(artifacts, "week.png"),
     fullPage: true,
   });
+  const dragTarget = page.locator(`[data-new-date="${today}T16:00"]`);
+  await page.locator(".time-event").first().dragTo(dragTarget);
+  await page.locator("#toast", { hasText: "Đã dời công việc" }).waitFor();
+  await page.waitForTimeout(500);
+  const resizeHandle = page.locator(".time-event .event-resize").first();
+  await resizeHandle.scrollIntoViewIfNeeded();
+  const resizeBox = await resizeHandle.boundingBox();
+  if (!resizeBox) throw new Error("Calendar resize handle missing");
+  await page.mouse.move(resizeBox.x + resizeBox.width / 2, resizeBox.y + 3);
+  await page.mouse.down();
+  await page.mouse.move(resizeBox.x + resizeBox.width / 2, resizeBox.y + 29, {
+    steps: 5,
+  });
+  await page.mouse.up();
+  await page.locator("#toast", { hasText: "Đã cập nhật thời lượng" }).waitFor();
   await page.locator('[data-cal="day"]').click();
   await page.locator(".time-slot").first().waitFor();
   await page.locator('[data-view="tasks"]').click();
@@ -140,6 +185,21 @@ fs.mkdirSync(artifacts, { recursive: true });
   await page.waitForTimeout(200);
   if ((await page.locator("#taskList .task-card").count()) !== 1)
     throw new Error("Filter failed");
+  await page.locator("#saveCurrentFilter").click();
+  await page
+    .locator("#savedFilterSelect option", { hasText: "Báo cáo quan trọng" })
+    .waitFor({ state: "attached" });
+  await page.locator("#clearFilter").click();
+  await page
+    .locator("#savedFilterSelect")
+    .selectOption({ label: "Báo cáo quan trọng" });
+  await page.locator("#applySavedFilter").click();
+  if ((await page.locator("#filterKeyword").inputValue()) !== "báo cáo")
+    throw new Error("Saved filter UI failed");
+  await page.locator('#taskList [data-action="focus"]').first().click();
+  await page.locator("#focusDock").waitFor({ state: "visible" });
+  await page.locator("#stopFocus").click();
+  await page.locator("#focusDock").waitFor({ state: "hidden" });
   await page.locator('#taskList [data-action="edit"]').first().click();
   await page.locator("#taskModal").waitFor({ state: "visible" });
   await page.locator("#checklistEditor [type=checkbox]").check();
@@ -147,7 +207,6 @@ fs.mkdirSync(artifacts, { recursive: true });
     .getByRole("button", { name: "Lưu công việc", exact: true })
     .click();
   await page.locator("#taskModal").waitFor({ state: "hidden" });
-  page.on("dialog", (d) => d.accept());
   await page.locator('#taskList [data-action="delete"]').first().click();
   await page.waitForTimeout(300);
   await page.locator('[data-view="trash"]').click();
@@ -155,6 +214,19 @@ fs.mkdirSync(artifacts, { recursive: true });
   await page.waitForTimeout(300);
   if ((await page.locator("#trashList .task-card").count()) !== 0)
     throw new Error("Restore failed");
+
+  const pdf = await page.request.get(
+    `${BASE}/reports/tasks.pdf?date_from=${today.slice(0, 7)}-01&date_to=${today}`,
+    { headers: { Authorization: "Bearer " + token } },
+  );
+  if (
+    pdf.status() !== 200 ||
+    !pdf.headers()["content-type"].includes("application/pdf")
+  )
+    throw new Error("PDF report failed");
+  await page.locator('[data-view="activities"]').click();
+  if ((await page.locator("#activityList .activity-item").count()) < 1)
+    throw new Error("Activity log UI failed");
 
   await page.locator('[data-view="categories"]').click();
   await page.locator("#categoryName").fill("Đồ án");
@@ -230,7 +302,7 @@ fs.mkdirSync(artifacts, { recursive: true });
     JSON.stringify({
       result: "passed",
       javascriptErrors: errors,
-      views: 9,
+      views: 10,
       mobileOverflow: overflow,
     }),
   );

@@ -1,6 +1,8 @@
 import os
 import secrets
+from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, Header
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from .. import models, schemas, auth
 from ..database import get_db
@@ -20,6 +22,12 @@ def notifications(
         raise HTTPException(422, "Trang không hợp lệ")
     generate(db, user.id)
     base = db.query(models.Notification).filter_by(owner_id=user.id)
+    available = base.filter(
+        or_(
+            models.Notification.snoozed_until.is_(None),
+            models.Notification.snoozed_until <= utcnow(),
+        )
+    )
     return {
         "items": [
             schemas.NotificationOut.model_validate(n)
@@ -29,7 +37,7 @@ def notifications(
             .offset((page - 1) * 30)
             .limit(30)
         ],
-        "unread": base.filter(models.Notification.read_at.is_(None)).count(),
+        "unread": available.filter(models.Notification.read_at.is_(None)).count(),
         "total": base.count(),
         "page": page,
     }
@@ -60,6 +68,24 @@ def read(
     row.read_at = utcnow()
     db.commit()
     return {"message": "Đã đọc"}
+
+
+@router.post("/notifications/{notice_id}/snooze")
+def snooze(
+    notice_id: int,
+    data: schemas.SnoozeIn,
+    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.get_current_user),
+):
+    row = (
+        db.query(models.Notification).filter_by(id=notice_id, owner_id=user.id).first()
+    )
+    if not row:
+        raise HTTPException(404, "Không tìm thấy thông báo")
+    row.read_at = None
+    row.snoozed_until = utcnow() + timedelta(minutes=data.minutes)
+    db.commit()
+    return {"message": f"Sẽ nhắc lại sau {data.minutes} phút"}
 
 
 @router.api_route("/internal/reminders", methods=["GET", "POST"])

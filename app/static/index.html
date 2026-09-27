@@ -132,6 +132,7 @@
           ><button data-view="calendar"><span>▦</span> Lịch của tôi</button
           ><button data-view="tasks"><span>☷</span> Công việc</button
           ><button data-view="stats"><span>▥</span> Thống kê</button
+          ><button data-view="activities"><span>↺</span> Hoạt động</button
           ><button data-view="notifications">
             <span>♧</span> Thông báo
             <b id="unreadBadge" class="count hidden">0</b>
@@ -219,6 +220,24 @@
             <div id="overdueTasks"></div>
           </section>
           <section id="tasksView" class="view hidden">
+            <div class="saved-filter-bar">
+              <select id="savedFilterSelect" aria-label="Bộ lọc đã lưu">
+                <option value="">Bộ lọc đã lưu…</option>
+              </select>
+              <button id="applySavedFilter" class="secondary" type="button">
+                Áp dụng
+              </button>
+              <button id="saveCurrentFilter" class="secondary" type="button">
+                Lưu bộ lọc hiện tại
+              </button>
+              <button
+                id="deleteSavedFilter"
+                class="link danger-text"
+                type="button"
+              >
+                Xóa bộ lọc
+              </button>
+            </div>
             <form id="filterForm" class="filter-panel">
               <input
                 id="filterKeyword"
@@ -283,8 +302,8 @@
             <div id="calendarLegend" class="legend"></div>
             <div id="calendar" class="calendar"></div>
             <p class="muted small">
-              Bấm ô ngày/giờ để thêm công việc; bấm công việc để xem, chỉnh sửa
-              hoặc dời lịch.
+              Bấm ô ngày/giờ để thêm việc. Kéo sự kiện sang ô khác để dời lịch;
+              trong lịch ngày/tuần có thể kéo mép dưới để đổi thời lượng.
             </p>
           </section>
           <section id="statsView" class="view hidden">
@@ -297,7 +316,9 @@
               ><button type="button" class="secondary" data-period="week">
                 7 ngày</button
               ><button type="button" class="secondary" data-period="month">
-                Tháng này
+                Tháng này</button
+              ><button type="button" class="secondary" id="exportPdf">
+                Xuất báo cáo PDF
               </button>
             </form>
             <div id="periodStats" class="summary-grid"></div>
@@ -412,6 +433,21 @@
             <div id="trashList"></div>
             <div id="trashPagination" class="pagination"></div>
           </section>
+          <section id="activitiesView" class="view hidden">
+            <div class="panel">
+              <div class="section-heading">
+                <div>
+                  <h2>Nhật ký hoạt động</h2>
+                  <p class="muted small">
+                    Theo dõi các lần tạo, sửa, dời lịch, tính giờ và xóa công
+                    việc.
+                  </p>
+                </div>
+              </div>
+              <div id="activityList"></div>
+              <div id="activityPagination" class="pagination"></div>
+            </div>
+          </section>
           <section id="accountView" class="view hidden">
             <div class="two-columns">
               <div class="panel">
@@ -502,6 +538,20 @@
             ×
           </button>
         </div>
+        <div class="template-toolbar">
+          <select id="taskTemplate" aria-label="Mẫu công việc">
+            <option value="">Chọn mẫu công việc…</option>
+          </select>
+          <button id="loadTemplate" type="button" class="secondary">
+            Dùng mẫu
+          </button>
+          <button id="saveTemplate" type="button" class="secondary">
+            Lưu thành mẫu
+          </button>
+          <button id="deleteTemplate" type="button" class="link danger-text">
+            Xóa mẫu
+          </button>
+        </div>
         <input id="taskId" type="hidden" /><label
           >Tiêu đề <span class="required">*</span
           ><input
@@ -517,6 +567,21 @@
             placeholder="Ghi chú, nội dung cần chuẩn bị…"
           ></textarea>
         </label>
+        <div class="two-columns">
+          <label
+            >Địa điểm<input
+              id="taskLocation"
+              maxlength="300"
+              placeholder="Phòng học, văn phòng…"
+          /></label>
+          <label
+            >Liên kết<input
+              id="taskMeetingUrl"
+              type="url"
+              maxlength="2048"
+              placeholder="https://meet.google.com/…"
+          /></label>
+        </div>
         <div class="two-columns">
           <label>Danh mục<select id="taskCategory"></select></label
           ><label
@@ -594,13 +659,22 @@
         <div id="checklistEditor"></div>
         <p id="taskFormError" class="error" role="alert"></p>
         <div class="dialog-actions">
-          <button
-            id="deleteFromModal"
-            type="button"
-            class="danger-button hidden"
-          >
-            Xóa
-          </button>
+          <div class="dialog-left-actions">
+            <button
+              id="deleteFromModal"
+              type="button"
+              class="danger-button hidden"
+            >
+              Xóa
+            </button>
+            <button
+              id="duplicateFromModal"
+              type="button"
+              class="secondary hidden"
+            >
+              Nhân bản
+            </button>
+          </div>
           <div>
             <button id="cancelTask" type="button" class="secondary">Hủy</button
             ><button type="submit" class="primary">Lưu công việc</button>
@@ -608,6 +682,16 @@
         </div>
       </form>
     </dialog>
+    <div id="focusDock" class="focus-dock hidden">
+      <div>
+        <span class="eyebrow">PHIÊN TẬP TRUNG</span>
+        <strong id="focusTitle"></strong>
+      </div>
+      <b id="focusClock">25:00</b>
+      <button id="stopFocus" class="secondary" type="button">
+        Dừng và lưu
+      </button>
+    </div>
     <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
   </body>
 </html>

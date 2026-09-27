@@ -614,6 +614,10 @@ nav button:hover {
   gap: 13px;
   align-items: flex-start;
 }
+.task-card.timer-active {
+  border-color: #90ab87;
+  box-shadow: inset 4px 0 #6f946a;
+}
 .task-check {
   width: 20px;
   height: 20px;
@@ -821,6 +825,30 @@ nav button:hover {
   padding: 5px 12px;
   font-size: 11px;
 }
+.saved-filter-bar,
+.template-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.saved-filter-bar {
+  margin-bottom: 10px;
+}
+.saved-filter-bar select,
+.template-toolbar select {
+  width: auto;
+  min-width: 190px;
+}
+.template-toolbar {
+  padding: 12px;
+  margin: -8px 0 18px;
+  border-radius: 10px;
+  background: #f5f7f1;
+}
+.template-toolbar select {
+  flex: 1;
+}
 .pagination {
   display: flex;
   align-items: center;
@@ -930,6 +958,17 @@ nav button:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.cal-event[draggable="true"] {
+  cursor: grab;
+}
+.cal-event.dragging {
+  opacity: 0.35;
+}
+.calendar-drop-target {
+  background-color: #e5eedf !important;
+  outline: 2px dashed #729067;
+  outline-offset: -3px;
+}
 .cal-event.done {
   opacity: 0.5;
   text-decoration: line-through;
@@ -1007,6 +1046,19 @@ nav button:hover {
   font-size: 10px;
   line-height: 1.4;
   min-height: 20px;
+}
+.time-event.resizing {
+  opacity: 0.82;
+  z-index: 4;
+}
+.event-resize {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 0;
+  height: 8px;
+  cursor: ns-resize;
+  border-bottom: 2px solid #66806d;
 }
 .time-event strong {
   display: block;
@@ -1127,6 +1179,51 @@ nav button:hover {
 .notice button {
   font-size: 11px;
 }
+.activity-timeline {
+  position: relative;
+  padding-left: 18px;
+}
+.activity-timeline::before {
+  content: "";
+  position: absolute;
+  left: 24px;
+  top: 18px;
+  bottom: 18px;
+  width: 1px;
+  background: var(--line);
+}
+.activity-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+}
+.activity-item > i {
+  width: 13px;
+  height: 13px;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 1px #9eb09e;
+  z-index: 1;
+  flex: 0 0 auto;
+}
+.activity-item > div {
+  display: grid;
+  gap: 3px;
+  flex: 1;
+}
+.activity-item strong {
+  font-size: 12px;
+  color: var(--accent);
+}
+.activity-item span {
+  font-size: 13px;
+}
+.activity-item small {
+  margin: 0;
+}
 .page-footer {
   display: flex;
   justify-content: space-between;
@@ -1189,6 +1286,10 @@ nav button:hover {
   display: flex;
   gap: 8px;
 }
+.dialog-actions .dialog-left-actions {
+  margin-left: 0;
+  margin-right: auto;
+}
 .checklist-row {
   display: flex;
   gap: 9px;
@@ -1227,6 +1328,42 @@ nav button:hover {
 }
 .toast.bad {
   background: #934b41;
+}
+.focus-dock {
+  position: fixed;
+  z-index: 90;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 390px;
+  padding: 15px 17px;
+  border: 1px solid #bdcbb7;
+  border-radius: 14px;
+  background: #f7f9f2;
+  box-shadow: 0 12px 40px #1f382c35;
+}
+.focus-dock > div {
+  min-width: 0;
+  flex: 1;
+}
+.focus-dock .eyebrow {
+  margin-bottom: 3px;
+  font-size: 8px;
+}
+.focus-dock strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+  font-size: 12px;
+}
+.focus-dock b {
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
 }
 #periodStats {
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1422,6 +1559,24 @@ nav button:hover {
   }
   .panel {
     padding: 20px;
+  }
+  .saved-filter-bar,
+  .template-toolbar {
+    align-items: stretch;
+  }
+  .saved-filter-bar select,
+  .template-toolbar select {
+    width: 100%;
+  }
+  .focus-dock {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    min-width: 0;
+    gap: 10px;
+  }
+  .focus-dock strong {
+    max-width: 115px;
   }
 }
 @media (prefers-reduced-motion: no-preference) {
