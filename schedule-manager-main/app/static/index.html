@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lịch Làm Việc · Không bỏ lỡ điều quan trọng</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23294339'/%3E%3Ctext x='14' y='46' font-size='44' fill='%23e8c886'%3E✓%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div id="authView" class="auth-screen">
+      <section class="auth-story">
+        <span class="eyebrow">MỘT NGÀY CÓ KẾ HOẠCH</span>
+        <h1>
+          Dành thời gian<br />cho <span class="no-break">điều</span><br /><em
+            >quan trọng.</em
+          >
+        </h1>
+        <p>
+          Lịch trình rõ ràng. Công việc gọn gàng.<br />Mọi kế hoạch của bạn ở
+          cùng một nơi.
+        </p>
+        <div class="story-card">
+          <span class="story-dot"></span>
+          <div>
+            <strong>Khoảng trống cho ý tưởng mới</strong>
+            <p>Bắt đầu bằng một kế hoạch nhỏ hôm nay.</p>
+          </div>
+          <span>↗</span>
+        </div>
+        <div class="auth-footer">
+          LỊCH LÀM VIỆC <span>•</span> PHIÊN BẢN 2.0
+        </div>
+      </section>
+      <section class="auth-panel">
+        <div class="auth-card">
+          <div class="brand">
+            <span class="brand-icon">✓</span><strong>Lịch Làm Việc</strong>
+          </div>
+          <h2 id="authTitle">Chào mừng trở lại</h2>
+          <p class="muted">Một nơi để sắp xếp ngày làm việc của bạn.</p>
+          <div class="segmented" id="authTabs">
+            <button class="active" data-auth="login">Đăng nhập</button
+            ><button data-auth="register">Đăng ký</button>
+          </div>
+          <form id="loginForm">
+            <label
+              >Tên đăng nhập<input
+                id="loginUsername"
+                required
+                autocomplete="username" /></label
+            ><label
+              >Mật khẩu<input
+                type="password"
+                id="loginPassword"
+                required
+                autocomplete="current-password" /></label
+            ><button class="primary full" type="submit">
+              Đăng nhập <span>→</span></button
+            ><button type="button" class="link full" id="forgotLink">
+              Quên mật khẩu?
+            </button>
+          </form>
+          <form id="registerForm" class="hidden">
+            <label
+              >Tên đăng nhập<input
+                id="registerUsername"
+                required
+                minlength="3"
+                maxlength="50"
+                pattern="[a-zA-Z0-9_.\-]+"
+                autocomplete="username"
+              /><small
+                >Ít nhất 3 ký tự: chữ không dấu, số, dấu chấm, gạch
+                ngang.</small
+              ></label
+            ><label
+              >Email<input
+                type="email"
+                id="registerEmail"
+                required
+                autocomplete="email" /></label
+            ><label
+              >Mật khẩu<input
+                type="password"
+                id="registerPassword"
+                required
+                minlength="8"
+                maxlength="72"
+                autocomplete="new-password"
+              /><small>Tối thiểu 8 ký tự.</small></label
+            ><button class="primary full" type="submit">Tạo tài khoản</button>
+          </form>
+          <form id="forgotForm" class="hidden">
+            <label
+              >Email đã đăng ký<input
+                id="forgotEmail"
+                type="email"
+                required
+                autocomplete="email" /></label
+            ><button class="primary full" type="submit">
+              Gửi liên kết khôi phục</button
+            ><button class="link full" type="button" data-auth="login">
+              Quay lại đăng nhập
+            </button>
+          </form>
+          <form id="resetForm" class="hidden">
+            <label
+              >Mật khẩu mới<input
+                id="resetPassword"
+                type="password"
+                required
+                minlength="8"
+                maxlength="72"
+                autocomplete="new-password" /></label
+            ><button class="primary full" type="submit">
+              Đặt lại mật khẩu
+            </button>
+          </form>
+          <p id="authMessage" role="status" class="form-message"></p>
+        </div>
+      </section>
+    </div>
+    <div id="appView" class="app-shell hidden">
+      <aside class="sidebar">
+        <a class="brand" href="#today"
+          ><span class="brand-icon">✓</span><strong>Lịch Làm Việc</strong></a
+        ><span class="nav-caption">KHÔNG GIAN CÁ NHÂN</span>
+        <nav id="nav">
+          <button data-view="today" class="active">
+            <span>◉</span> Hôm nay</button
+          ><button data-view="calendar"><span>▦</span> Lịch của tôi</button
+          ><button data-view="tasks"><span>☷</span> Công việc</button
+          ><button data-view="stats"><span>▥</span> Thống kê</button
+          ><button data-view="activities"><span>↺</span> Hoạt động</button
+          ><button data-view="notifications">
+            <span>♧</span> Thông báo
+            <b id="unreadBadge" class="count hidden">0</b>
+          </button>
+          <div class="nav-rule"></div>
+          <button data-view="categories"><span>◇</span> Danh mục</button
+          ><button data-view="transfer"><span>⇅</span> Nhập / xuất</button
+          ><button data-view="trash"><span>♲</span> Thùng rác</button
+          ><button data-view="account"><span>⚙</span> Tài khoản</button>
+        </nav>
+        <div class="sidebar-note">
+          <span>CHẬM MỘT NHỊP</span>
+          <p>Làm từng việc một.<br />Tiến bộ từng ngày.</p>
+        </div>
+        <div class="user-box">
+          <div class="avatar" id="avatar">K</div>
+          <div><strong id="whoami"></strong><small id="zoneLabel"></small></div>
+          <button
+            id="logoutBtn"
+            title="Đăng xuất các phiên"
+            aria-label="Đăng xuất"
+          >
+            ↪
+          </button>
+        </div>
+      </aside>
+      <main class="main">
+        <header class="topbar">
+          <span id="todayLabel"></span>
+          <div>
+            <span class="status-dot"></span
+            ><span id="connectionLabel">Không gian của bạn</span
+            ><button
+              id="refreshBtn"
+              class="icon-button"
+              title="Làm mới"
+              aria-label="Làm mới"
+            >
+              ↻
+            </button>
+          </div>
+        </header>
+        <div class="page">
+          <div class="page-heading">
+            <div>
+              <span class="eyebrow" id="pageEyebrow"
+                >MỖI NGÀY MỘT BƯỚC TIẾN</span
+              >
+              <h1 id="pageTitle">Hôm nay</h1>
+              <p id="pageSubtitle" class="muted"></p>
+            </div>
+            <button id="newTaskBtn" class="primary">+ Thêm công việc</button>
+          </div>
+          <p id="pageError" class="error" role="alert"></p>
+          <div id="summary" class="summary-grid"></div>
+          <section id="todayView" class="view">
+            <div class="today-layout">
+              <div>
+                <div class="section-heading">
+                  <h2>Kế hoạch hôm nay</h2>
+                  <span id="todayCount" class="pill"></span>
+                </div>
+                <div id="todayTasks"></div>
+              </div>
+              <aside>
+                <div class="focus-card">
+                  <span class="eyebrow">MỘT CHÚT TẬP TRUNG</span>
+                  <h3>
+                    Việc quan trọng<br /><span class="no-break">tiếp</span> theo
+                    là gì?
+                  </h3>
+                  <p>
+                    Bắt đầu với một việc nhỏ.<br />Hoàn thành rồi chuyển sang
+                    việc tiếp theo.
+                  </p>
+                  <button id="todayCreate" class="secondary">
+                    + Lên kế hoạch
+                  </button>
+                </div>
+                <div class="section-heading"><h2>Sắp đến hạn</h2></div>
+                <div id="upcomingTasks"></div>
+              </aside>
+            </div>
+            <div class="section-heading">
+              <h2 class="danger-text">Cần xử lý · Quá hạn</h2>
+              <button class="link" id="viewOverdue">Xem tất cả →</button>
+            </div>
+            <div id="overdueTasks"></div>
+          </section>
+          <section id="tasksView" class="view hidden">
+            <div class="saved-filter-bar">
+              <select id="savedFilterSelect" aria-label="Bộ lọc đã lưu">
+                <option value="">Bộ lọc đã lưu…</option>
+              </select>
+              <button id="applySavedFilter" class="secondary" type="button">
+                Áp dụng
+              </button>
+              <button id="saveCurrentFilter" class="secondary" type="button">
+                Lưu bộ lọc hiện tại
+              </button>
+              <button
+                id="deleteSavedFilter"
+                class="link danger-text"
+                type="button"
+              >
+                Xóa bộ lọc
+              </button>
+            </div>
+            <form id="filterForm" class="filter-panel">
+              <input
+                id="filterKeyword"
+                placeholder="Tìm tiêu đề hoặc mô tả…"
+                aria-label="Tìm kiếm"
+              /><select id="filterStatus" aria-label="Trạng thái">
+                <option value="">Mọi trạng thái</option>
+                <option value="todo">Chưa làm</option>
+                <option value="in_progress">Đang làm</option>
+                <option value="done">Hoàn thành</option></select
+              ><select id="filterPriority" aria-label="Độ ưu tiên">
+                <option value="">Mọi ưu tiên</option>
+                <option value="high">Cao</option>
+                <option value="medium">Trung bình</option>
+                <option value="low">Thấp</option></select
+              ><select id="filterCategory" aria-label="Danh mục"></select
+              ><label class="compact-label"
+                >Từ ngày<input id="filterFrom" type="date" /></label
+              ><label class="compact-label"
+                >Đến ngày<input id="filterTo" type="date" /></label
+              ><select id="filterSort" aria-label="Sắp xếp">
+                <option value="start">Giờ bắt đầu</option>
+                <option value="deadline">Hạn chót gần nhất</option>
+                <option value="priority">Ưu tiên cao trước</option>
+                <option value="newest">Mới tạo trước</option></select
+              ><label class="check-label"
+                ><input id="filterOverdue" type="checkbox" /> Chỉ quá hạn</label
+              ><button class="primary" type="submit">Lọc</button
+              ><button class="secondary" type="button" id="clearFilter">
+                Đặt lại
+              </button>
+              <div class="quick-filters">
+                <button type="button" data-quick="today">Hôm nay</button
+                ><button type="button" data-quick="week">Tuần này</button
+                ><button type="button" data-quick="overdue">Quá hạn</button>
+              </div>
+            </form>
+            <div id="taskList"></div>
+            <div id="taskPagination" class="pagination"></div>
+          </section>
+          <section id="calendarView" class="view hidden">
+            <div class="calendar-toolbar">
+              <div class="calendar-nav">
+                <button
+                  id="calPrev"
+                  class="secondary"
+                  aria-label="Khoảng trước"
+                >
+                  ‹</button
+                ><button id="calToday" class="secondary">Hôm nay</button
+                ><button id="calNext" class="secondary" aria-label="Khoảng sau">
+                  ›
+                </button>
+                <h2 id="calTitle"></h2>
+              </div>
+              <div class="segmented">
+                <button data-cal="day">Ngày</button
+                ><button data-cal="week">Tuần</button
+                ><button class="active" data-cal="month">Tháng</button>
+              </div>
+            </div>
+            <div id="calendarLegend" class="legend"></div>
+            <div id="calendar" class="calendar"></div>
+            <p class="muted small">
+              Bấm ô ngày/giờ để thêm việc. Kéo sự kiện sang ô khác để dời lịch;
+              trong lịch ngày/tuần có thể kéo mép dưới để đổi thời lượng.
+            </p>
+          </section>
+          <section id="statsView" class="view hidden">
+            <form id="statsForm" class="toolbar">
+              <label class="compact-label"
+                >Từ ngày<input type="date" id="statsFrom" required /></label
+              ><label class="compact-label"
+                >Đến ngày<input type="date" id="statsTo" required /></label
+              ><button class="primary">Xem báo cáo</button
+              ><button type="button" class="secondary" data-period="week">
+                7 ngày</button
+              ><button type="button" class="secondary" data-period="month">
+                Tháng này</button
+              ><button type="button" class="secondary" id="exportPdf">
+                Xuất báo cáo PDF
+              </button>
+            </form>
+            <div id="periodStats" class="summary-grid"></div>
+            <div class="chart-grid">
+              <div class="panel">
+                <h2>Nhịp độ công việc</h2>
+                <p class="muted small">
+                  Lịch bắt đầu và thời điểm thực tế hoàn thành.
+                </p>
+                <div class="legend">
+                  <span><i style="background: #d9ded3"></i> Có lịch</span
+                  ><span><i style="background: #4f7b69"></i> Hoàn thành</span>
+                </div>
+                <div id="dailyChart" class="bar-chart"></div>
+              </div>
+              <div class="panel">
+                <h2>Theo danh mục</h2>
+                <p class="muted small">
+                  Công việc có lịch trong khoảng đã chọn.
+                </p>
+                <div id="categoryChart"></div>
+              </div>
+            </div>
+            <p id="legacyStats" class="muted small"></p>
+          </section>
+          <section id="notificationsView" class="view hidden">
+            <div class="toolbar">
+              <button id="readAll" class="secondary">
+                Đánh dấu tất cả đã đọc</button
+              ><button id="enableNotifications" class="secondary">
+                Bật thông báo trình duyệt
+              </button>
+            </div>
+            <p class="muted small">
+              Thông báo trình duyệt hoạt động khi trang đang mở. Nhắc qua email
+              cần bật trong Tài khoản và cấu hình dịch vụ gửi thư.
+            </p>
+            <div id="notificationList"></div>
+            <div id="notificationPagination" class="pagination"></div>
+          </section>
+          <section id="categoriesView" class="view hidden">
+            <div class="panel">
+              <h2>Phân loại theo cách của bạn</h2>
+              <p class="muted">
+                Màu danh mục giúp bạn nhận ra công việc trên lịch.
+              </p>
+              <form id="categoryForm" class="toolbar">
+                <input type="hidden" id="categoryId" /><input
+                  id="categoryName"
+                  required
+                  maxlength="50"
+                  placeholder="Tên danh mục"
+                  aria-label="Tên danh mục"
+                /><input
+                  id="categoryColor"
+                  type="color"
+                  value="#4f7b69"
+                  aria-label="Màu danh mục"
+                /><button class="primary">Lưu danh mục</button
+                ><button id="cancelCategory" type="button" class="secondary">
+                  Hủy sửa
+                </button>
+              </form>
+              <div id="categoryList"></div>
+            </div>
+          </section>
+          <section id="transferView" class="view hidden">
+            <div class="two-columns">
+              <div class="panel">
+                <span class="eyebrow">MANG KẾ HOẠCH ĐI CÙNG</span>
+                <h2>Xuất dữ liệu</h2>
+                <p class="muted">
+                  Xuất toàn bộ công việc đang lưu, không bao gồm thùng rác. Lịch
+                  lặp được xuất thành từng sự kiện.
+                </p>
+                <button data-export="ics" class="primary">Tải lịch .ics</button
+                ><button data-export="csv" class="secondary">
+                  Tải bảng .csv
+                </button>
+                <p class="muted small">
+                  ICS để trao đổi với ứng dụng lịch. CSV để mở trong Excel; thời
+                  gian xuất theo UTC.
+                </p>
+              </div>
+              <div class="panel">
+                <span class="eyebrow">TIẾP NỐI KẾ HOẠCH</span>
+                <h2>Nhập lịch</h2>
+                <form id="importForm">
+                  <label
+                    >Chọn tệp .ics hoặc .csv<input
+                      id="importFile"
+                      type="file"
+                      accept=".ics,.csv"
+                      required
+                  /></label>
+                  <p class="muted small">
+                    Tối đa 2 MB / 1.000 công việc. CSV cần cột title,
+                    start_time; xem README để biết đầy đủ cột. Sự kiện ICS có
+                    UID đã nhập sẽ được bỏ qua.
+                  </p>
+                  <button class="primary">Nhập công việc</button>
+                </form>
+                <p id="importResult" role="status"></p>
+              </div>
+            </div>
+          </section>
+          <section id="trashView" class="view hidden">
+            <p class="muted">
+              Công việc đã xóa được giữ ở đây đến khi bạn khôi phục hoặc xóa
+              vĩnh viễn.
+            </p>
+            <div id="trashList"></div>
+            <div id="trashPagination" class="pagination"></div>
+          </section>
+          <section id="activitiesView" class="view hidden">
+            <div class="panel">
+              <div class="section-heading">
+                <div>
+                  <h2>Nhật ký hoạt động</h2>
+                  <p class="muted small">
+                    Theo dõi các lần tạo, sửa, dời lịch, tính giờ và xóa công
+                    việc.
+                  </p>
+                </div>
+              </div>
+              <div id="activityList"></div>
+              <div id="activityPagination" class="pagination"></div>
+            </div>
+          </section>
+          <section id="accountView" class="view hidden">
+            <div class="two-columns">
+              <div class="panel">
+                <h2>Thông tin cá nhân</h2>
+                <form id="profileForm">
+                  <label
+                    >Tên hiển thị<input
+                      id="profileName"
+                      maxlength="100" /></label
+                  ><label
+                    >Email<input
+                      id="profileEmail"
+                      type="email"
+                      required /></label
+                  ><label
+                    >Múi giờ<select id="profileZone">
+                      <option>Asia/Ho_Chi_Minh</option>
+                      <option>Asia/Tokyo</option>
+                      <option>Asia/Singapore</option>
+                      <option>UTC</option>
+                      <option>Europe/Paris</option>
+                      <option>America/New_York</option>
+                    </select></label
+                  ><label class="check-label"
+                    ><input id="profileReminders" type="checkbox" /> Nhận nhắc
+                    việc qua email</label
+                  >
+                  <p id="emailStatus" class="muted small"></p>
+                  <button class="primary">Lưu thông tin</button>
+                </form>
+              </div>
+              <div class="panel">
+                <h2>Đổi mật khẩu</h2>
+                <p class="muted">
+                  Các phiên đăng nhập sẽ hết hiệu lực sau khi đổi mật khẩu.
+                </p>
+                <form id="passwordForm">
+                  <label
+                    >Mật khẩu hiện tại<input
+                      id="oldPassword"
+                      type="password"
+                      required
+                      autocomplete="current-password" /></label
+                  ><label
+                    >Mật khẩu mới<input
+                      id="newPassword"
+                      type="password"
+                      required
+                      minlength="8"
+                      maxlength="72"
+                      autocomplete="new-password" /></label
+                  ><label
+                    >Nhập lại mật khẩu mới<input
+                      id="confirmPassword"
+                      type="password"
+                      required
+                      minlength="8"
+                      autocomplete="new-password" /></label
+                  ><button class="primary">Đổi mật khẩu</button>
+                </form>
+                <hr class="account-divider" />
+                <button id="accountLogout" class="secondary" type="button">
+                  Đăng xuất các phiên
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+        <footer class="page-footer">
+          <span>LỊCH LÀM VIỆC</span
+          ><span>Ít bận rộn hơn. Nhiều điều ý nghĩa hơn.</span>
+        </footer>
+      </main>
+    </div>
+    <dialog id="taskModal" class="task-dialog">
+      <form id="taskForm">
+        <div class="dialog-header">
+          <div>
+            <span class="eyebrow">KẾ HOẠCH CỦA BẠN</span>
+            <h2 id="modalTitle">Công việc mới</h2>
+          </div>
+          <button
+            type="button"
+            id="closeTask"
+            class="icon-button"
+            aria-label="Đóng"
+          >
+            ×
+          </button>
+        </div>
+        <div class="template-toolbar">
+          <select id="taskTemplate" aria-label="Mẫu công việc">
+            <option value="">Chọn mẫu công việc…</option>
+          </select>
+          <button id="loadTemplate" type="button" class="secondary">
+            Dùng mẫu
+          </button>
+          <button id="saveTemplate" type="button" class="secondary">
+            Lưu thành mẫu
+          </button>
+          <button id="deleteTemplate" type="button" class="link danger-text">
+            Xóa mẫu
+          </button>
+        </div>
+        <input id="taskId" type="hidden" /><label
+          >Tiêu đề <span class="required">*</span
+          ><input
+            id="taskTitle"
+            required
+            maxlength="200"
+            placeholder="Bạn muốn hoàn thành điều gì?" /></label
+        ><label
+          >Mô tả<textarea
+            id="taskDescription"
+            rows="2"
+            maxlength="10000"
+            placeholder="Ghi chú, nội dung cần chuẩn bị…"
+          ></textarea>
+        </label>
+        <div class="two-columns">
+          <label
+            >Địa điểm<input
+              id="taskLocation"
+              maxlength="300"
+              placeholder="Phòng học, văn phòng…"
+          /></label>
+          <label
+            >Liên kết<input
+              id="taskMeetingUrl"
+              type="url"
+              maxlength="2048"
+              placeholder="https://meet.google.com/…"
+          /></label>
+        </div>
+        <div class="two-columns">
+          <label>Danh mục<select id="taskCategory"></select></label
+          ><label
+            >Ưu tiên<select id="taskPriority">
+              <option value="low">Thấp</option>
+              <option value="medium" selected>Trung bình</option>
+              <option value="high">Cao</option>
+            </select></label
+          >
+        </div>
+        <div class="two-columns">
+          <label
+            >Bắt đầu *<input
+              id="taskStart"
+              type="datetime-local"
+              required /></label
+          ><label>Kết thúc<input id="taskEnd" type="datetime-local" /></label>
+        </div>
+        <p id="taskZone" class="muted small"></p>
+        <div class="two-columns">
+          <label
+            >Hạn chót riêng<input
+              id="taskDeadline"
+              type="datetime-local" /></label
+          ><label
+            >Nhắc trước giờ bắt đầu<select id="taskReminder">
+              <option value="">Không nhắc</option>
+              <option value="0">Đúng giờ</option>
+              <option value="5">5 phút</option>
+              <option value="15">15 phút</option>
+              <option value="30">30 phút</option>
+              <option value="60">1 giờ</option>
+              <option value="1440">1 ngày</option>
+            </select></label
+          >
+        </div>
+        <div class="two-columns">
+          <label
+            >Trạng thái<select id="taskStatus">
+              <option value="todo">Chưa làm</option>
+              <option value="in_progress">Đang làm</option>
+              <option value="done">Hoàn thành</option>
+            </select></label
+          ><label id="recurrenceLabel"
+            >Lặp lại<select id="taskRecurrence">
+              <option value="none">Không lặp</option>
+              <option value="daily">Hằng ngày</option>
+              <option value="weekly">Hằng tuần</option>
+              <option value="monthly">Hằng tháng</option>
+            </select></label
+          >
+        </div>
+        <label id="recurrenceUntilLabel" class="hidden"
+          >Lặp đến hết ngày<input id="taskRecurrenceUntil" type="date" /><small
+            >Tối đa 366 lần, trong 2 năm. Lặp theo tháng bỏ qua tháng không có
+            ngày tương ứng.</small
+          ></label
+        ><label id="scopeLabel" class="hidden"
+          >Áp dụng chỉnh sửa<select id="taskScope">
+            <option value="one">Chỉ lần này</option>
+            <option value="series">
+              Tất cả lần trong chuỗi còn ở danh sách
+            </option></select
+          ><small
+            >Chọn cả chuỗi sẽ áp dụng nội dung, trạng thái và checklist cho mọi
+            lần. Ngày kết thúc chuỗi được thiết lập khi tạo.</small
+          ></label
+        >
+        <div class="section-heading">
+          <h3>Các bước thực hiện</h3>
+          <button id="addChecklist" class="link" type="button">
+            + Thêm bước
+          </button>
+        </div>
+        <div id="checklistEditor"></div>
+        <p id="taskFormError" class="error" role="alert"></p>
+        <div class="dialog-actions">
+          <div class="dialog-left-actions">
+            <button
+              id="deleteFromModal"
+              type="button"
+              class="danger-button hidden"
+            >
+              Xóa
+            </button>
+            <button
+              id="duplicateFromModal"
+              type="button"
+              class="secondary hidden"
+            >
+              Nhân bản
+            </button>
+          </div>
+          <div>
+            <button id="cancelTask" type="button" class="secondary">Hủy</button
+            ><button type="submit" class="primary">Lưu công việc</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+    <div id="focusDock" class="focus-dock hidden">
+      <div>
+        <span class="eyebrow">PHIÊN TẬP TRUNG</span>
+        <strong id="focusTitle"></strong>
+      </div>
+      <b id="focusClock">25:00</b>
+      <button id="stopFocus" class="secondary" type="button">
+        Dừng và lưu
+      </button>
+    </div>
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  </body>
+</html>
