@@ -2,10 +2,11 @@
 
 Ứng dụng quản lý lịch **cá nhân**, nâng cấp từ project FastAPI gốc. Frontend HTML/CSS/JavaScript thuần, không cần npm để chạy. Cơ sở dữ liệu SQLite ở local hoặc PostgreSQL khi triển khai. Giao diện hoàn toàn tiếng Việt, dùng được trên máy tính và điện thoại.
 
-### Cập nhật giao diện 04/10/2026
+### Cập nhật giao diện Pixel / Material You 04/10/2026
 
 - Sửa hiển thị dấu tiếng Việt ở hai tiêu đề “điều” và “tiếp” bằng phông chữ hệ thống, không phụ thuộc phông serif tải thêm.
-- Vào **Tài khoản → Tùy chỉnh giao diện** để chọn một trong 5 bảng màu: xanh lá, xanh đại dương, tím lavender, hồng ấm áp và nâu cát.
+- Vào **Tài khoản → Tùy chỉnh giao diện** để chọn một trong 6 bảng màu lấy cảm hứng từ Google Pixel / Material You: Pixel mặc định, xanh lá, xanh dương, lavender, hồng và màu cát. Nút khôi phục chọn lại Pixel mặc định.
+- Nền sáng trung tính, thẻ bo tròn, nút dạng viên thuốc và cặp màu chữ/nền có độ tương phản cao hơn. Đây là các bảng màu của website, không tự lấy màu từ hình nền hệ điều hành.
 - Màu áp dụng ngay, được lưu trên trình duyệt hiện tại và có thể khôi phục mặc định. Không đồng bộ lựa chọn màu giữa các thiết bị.
 - Khi cập nhật GitHub, cần thay cả `app/static/index.html`, `app/static/style.css` và `app/static/app.js`. Chờ Vercel triển khai thành công trước khi tải lại website.
 

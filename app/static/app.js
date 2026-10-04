@@ -2,14 +2,15 @@
 const $ = (id) => document.getElementById(id);
 // Bảng màu chỉ lưu trên thiết bị, không thay đổi dữ liệu lịch làm việc.
 const THEMES = {
-  forest: { name: "Xanh lá dịu", colors: ["#243e33", "#4f7b69", "#f7f8f3"] },
-  ocean: { name: "Xanh đại dương", colors: ["#173d65", "#286b9b", "#f2f7fc"] },
-  lavender: { name: "Tím lavender", colors: ["#493363", "#79539b", "#f8f5fc"] },
-  rose: { name: "Hồng ấm áp", colors: ["#683646", "#a64b69", "#fff5f7"] },
-  sand: { name: "Nâu cát", colors: ["#513e2c", "#87633b", "#faf7f1"] },
+  pixel: { name: "Pixel mặc định", colors: ["#6750a4", "#eaddff", "#fffbfe"] },
+  forest: { name: "Pixel xanh lá", colors: ["#386a20", "#b8f397", "#f8fbf4"] },
+  ocean: { name: "Pixel xanh dương", colors: ["#415f91", "#d6e3ff", "#f8f9ff"] },
+  lavender: { name: "Pixel lavender", colors: ["#76558f", "#f1daff", "#fdf7ff"] },
+  rose: { name: "Pixel hồng", colors: ["#984061", "#ffd9e4", "#fff8f8"] },
+  sand: { name: "Pixel màu cát", colors: ["#825500", "#ffddb0", "#fff8f3"] },
 };
 function applyTheme(id, persist = false) {
-  if (!Object.hasOwn(THEMES, id)) id = "forest";
+  if (!Object.hasOwn(THEMES, id)) id = "pixel";
   document.documentElement.dataset.theme = id;
   let saved = true;
   if (persist) {
@@ -28,9 +29,9 @@ $("themeChoices").addEventListener("click", (event) => {
   const button = event.target.closest("[data-theme-choice]");
   if (button) applyTheme(button.dataset.themeChoice, true);
 });
-$("resetTheme").addEventListener("click", () => applyTheme("forest", true));
-let initialTheme = "forest";
-try { initialTheme = localStorage.getItem("sm_theme") || "forest"; } catch {}
+$("resetTheme").addEventListener("click", () => applyTheme("pixel", true));
+let initialTheme = "pixel";
+try { initialTheme = localStorage.getItem("sm_theme") || "pixel"; } catch {}
 applyTheme(initialTheme);
 const esc = (value) =>
   String(value ?? "").replace(
