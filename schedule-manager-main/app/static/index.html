@@ -8,8 +8,8 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23294339'/%3E%3Ctext x='14' y='46' font-size='44' fill='%23e8c886'%3E✓%3C/text%3E%3C/svg%3E"
     />
-    <link rel="stylesheet" href="/style.css" />
-    <script src="/app.js" defer></script>
+    <link rel="stylesheet" href="/style.css?v=20261004-theme1" />
+    <script src="/app.js?v=20261004-theme1" defer></script>
   </head>
   <body>
     <div id="authView" class="auth-screen">
@@ -456,6 +456,13 @@
             </div>
           </section>
           <section id="accountView" class="view hidden">
+            <div class="panel appearance-panel">
+              <h2>Tùy chỉnh giao diện</h2>
+              <p class="muted">Chọn bảng màu yêu thích. Thay đổi áp dụng ngay cho toàn bộ website, kể cả màn hình đăng nhập, và được lưu trên trình duyệt này.</p>
+              <div id="themeChoices" class="theme-choices" role="group" aria-label="Bảng màu giao diện"></div>
+              <p id="themeStatus" role="status" class="muted small"></p>
+              <button id="resetTheme" class="secondary" type="button">Khôi phục màu mặc định</button>
+            </div>
             <div class="two-columns">
               <div class="panel">
                 <h2>Thông tin cá nhân</h2>

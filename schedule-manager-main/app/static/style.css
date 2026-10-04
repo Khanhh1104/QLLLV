@@ -22,6 +22,35 @@
   font-weight: 400;
   font-display: swap;
 }
+:root[data-theme="ocean"] {
+  --paper: #f2f7fc; --ink: #173d65; --text: #263d53;
+  --muted: #5f7487; --line: #dbe5ef; --accent: #286b9b;
+  --light: #e6f0fa; --focus: #d8e9f7;
+}
+:root[data-theme="lavender"] {
+  --paper: #f8f5fc; --ink: #493363; --text: #443651;
+  --muted: #786585; --line: #e6dfee; --accent: #79539b;
+  --light: #eee5f7; --focus: #e1d2ef;
+}
+:root[data-theme="rose"] {
+  --paper: #fff5f7; --ink: #683646; --text: #51343f;
+  --muted: #896771; --line: #efdee4; --accent: #a64b69;
+  --light: #fbe7ed; --focus: #f3d4df;
+}
+:root[data-theme="sand"] {
+  --paper: #faf7f1; --ink: #513e2c; --text: #4b3d30;
+  --muted: #80715f; --line: #e9e1d5; --accent: #87633b;
+  --light: #f1e8da; --focus: #e8d9bf;
+}
+.appearance-panel { margin-bottom: 24px; }
+.theme-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.theme-choice { position: relative; display: grid; gap: 12px; padding: 16px; border: 2px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--text); text-align: left; }
+.theme-choice:hover { border-color: var(--accent); }
+.theme-choice[aria-pressed="true"] { border-color: var(--accent); background: var(--light); }
+.theme-swatches { display: flex; gap: 6px; }
+.theme-swatches i { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #00000015; }
+.theme-check { position: absolute; right: 10px; top: 10px; color: var(--ink); visibility: hidden; }
+.theme-choice[aria-pressed="true"] .theme-check { visibility: visible; }
 * {
   box-sizing: border-box;
 }
@@ -150,7 +179,7 @@ a {
   color: white;
 }
 .primary:hover {
-  background: #3b5b4b;
+  background: var(--accent);
 }
 .secondary {
   background: #fff;
@@ -266,12 +295,12 @@ a {
   color: #c4ccad;
 }
 .auth-story h1 {
-  font-family: "Schedule Serif", Georgia, serif;
+  font-family: "Segoe UI", Arial, sans-serif;
   font-weight: 400;
   font-size: clamp(44px, 5vw, 76px);
   line-height: 1.16;
   margin: 22px 0 25px;
-  letter-spacing: -2px;
+  letter-spacing: normal;
 }
 .auth-story h1 em {
   color: var(--yellow);
@@ -398,12 +427,12 @@ nav button > span {
   text-align: center;
 }
 nav button.active {
-  background: #eaf0e5;
+  background: var(--light);
   color: var(--ink);
   font-weight: 600;
 }
 nav button:hover {
-  background: #f3f5ee;
+  background: var(--light);
 }
 .nav-rule {
   height: 1px;
@@ -586,29 +615,30 @@ nav button:hover {
   font-size: 10px;
 }
 .focus-card {
-  background: #eaf0e2;
+  background: var(--light);
   border-radius: 13px;
   padding: 26px;
   margin-bottom: 26px;
   background-image: radial-gradient(
     ellipse at 100% 100%,
-    #d9e2c2 0,
+    var(--focus, #d9e2c2) 0,
     transparent 65%
   );
 }
 .focus-card .eyebrow {
   font-size: 9px;
-  color: #85936b;
+  color: var(--accent);
 }
 .focus-card h3 {
-  font-family: "Schedule Serif", Georgia, serif;
+  font-family: "Segoe UI", Arial, sans-serif;
+  letter-spacing: normal;
   font-size: 27px;
   font-weight: 400;
   line-height: 1.28;
 }
 .focus-card p {
   font-size: 12px;
-  color: #859278;
+  color: var(--muted);
 }
 .focus-card .secondary {
   background: #ffffff70;

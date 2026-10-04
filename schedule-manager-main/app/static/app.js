@@ -1,5 +1,37 @@
 "use strict";
 const $ = (id) => document.getElementById(id);
+// Bảng màu chỉ lưu trên thiết bị, không thay đổi dữ liệu lịch làm việc.
+const THEMES = {
+  forest: { name: "Xanh lá dịu", colors: ["#243e33", "#4f7b69", "#f7f8f3"] },
+  ocean: { name: "Xanh đại dương", colors: ["#173d65", "#286b9b", "#f2f7fc"] },
+  lavender: { name: "Tím lavender", colors: ["#493363", "#79539b", "#f8f5fc"] },
+  rose: { name: "Hồng ấm áp", colors: ["#683646", "#a64b69", "#fff5f7"] },
+  sand: { name: "Nâu cát", colors: ["#513e2c", "#87633b", "#faf7f1"] },
+};
+function applyTheme(id, persist = false) {
+  if (!Object.hasOwn(THEMES, id)) id = "forest";
+  document.documentElement.dataset.theme = id;
+  let saved = true;
+  if (persist) {
+    try { localStorage.setItem("sm_theme", id); } catch { saved = false; }
+  }
+  document.querySelectorAll("[data-theme-choice]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.themeChoice === id));
+  });
+  $("themeStatus").textContent = `Đang dùng: ${THEMES[id].name}.` +
+    (saved ? "" : " Trình duyệt không cho phép lưu lựa chọn.");
+}
+$("themeChoices").innerHTML = Object.entries(THEMES).map(([id, theme]) =>
+  `<button type="button" class="theme-choice" data-theme-choice="${id}" aria-pressed="false"><span class="theme-swatches" aria-hidden="true">${theme.colors.map(color => `<i style="background:${color}"></i>`).join("")}</span><span>${theme.name}</span><span class="theme-check" aria-hidden="true">✓</span></button>`
+).join("");
+$("themeChoices").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-theme-choice]");
+  if (button) applyTheme(button.dataset.themeChoice, true);
+});
+$("resetTheme").addEventListener("click", () => applyTheme("forest", true));
+let initialTheme = "forest";
+try { initialTheme = localStorage.getItem("sm_theme") || "forest"; } catch {}
+applyTheme(initialTheme);
 const esc = (value) =>
   String(value ?? "").replace(
     /[&<>"']/g,
